@@ -1,0 +1,24 @@
+{
+  "name": "discord_bot_openlake",
+  "version": "1.0.0",
+  "description": "Bot for openlake discord channel",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HarK-github/discord_bot_openlake.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/HarK-github/discord_bot_openlake/issues"
+  },
+  "homepage": "https://github.com/HarK-github/discord_bot_openlake#readme",
+  "dependencies": {
+    "discord.js": "^14.21.0",
+    "dotenv": "^17.2.1",
+    "nodemon": "^3.1.10"
+  }
+}
