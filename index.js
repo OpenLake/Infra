@@ -4,6 +4,7 @@ const fetch = require('node-fetch');
 const fs = require('fs');
 const path = require('path');
 
+// ---------------------- DISCORD CLIENT ----------------------
 const client = new Client({
     intents: [
         IntentsBitField.Flags.Guilds,
@@ -13,13 +14,19 @@ const client = new Client({
     ]
 });
 
-// --- Load data ---
+// ---------------------- VARIABLES ----------------------
 let postedPRs = [];
 let postedIssues = [];
 let points = {};
 
-const DATA_FILE = './botData.json';
+const repoConfig = require('./database/repoChannels.json');
+const REPO_CHANNELS = repoConfig.repos;
+const GENERAL_CHANNEL_NAME = repoConfig.generalChannel;
 
+const DATA_FILE = './botData.json';
+const FETCH_INTERVAL = 1000 * 60 * 4;
+
+// ---------------------- LOAD SAVED DATA ----------------------
 if (fs.existsSync(DATA_FILE)) {
     const raw = fs.readFileSync(DATA_FILE);
     const savedData = JSON.parse(raw);
@@ -32,190 +39,142 @@ function saveData() {
     fs.writeFileSync(DATA_FILE, JSON.stringify({ postedPRs, postedIssues, points }, null, 2));
 }
 
-// --- Commands ---
-client.commands = new Collection();
-const commandsPath = path.join(__dirname, 'commands');
-const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
-
-for (const file of commandFiles) {
-    const filePath = path.join(commandsPath, file);
-    const command = require(filePath);
-    client.commands.set(command.data.name, command);
-}
-
-client.on('interactionCreate', async interaction => {
-    if (!interaction.isChatInputCommand()) return;
-
-    const command = client.commands.get(interaction.commandName);
-    if (!command) return;
-
-    try {
-        await command.execute(interaction, points, saveData);
-    } catch (error) {
-        console.error(error);
-        interaction.reply({ content: 'There was an error executing that command!', ephemeral: true });
-    }
-});
-
-client.on('guildMemberAdd', member => {
-    const channel = member.guild.channels.cache.find(ch => ch.name === 'general');
-    if (!channel) return;
-
-    channel.send(`
-🎉 Welcome to **${member.guild.name}**, ${member}!
-
-We’re excited to have you here. Here’s how to get started:
-
-1️⃣ Read the [Server Rules](https://discord.com/channels/your-server-id/rules-channel-id) 📜  
-2️⃣ Introduce yourself in the #introductions channel 👋  
-3️⃣ Check out our [GitHub Organization](https://github.com/OpenLake) to explore projects 💻  
-4️⃣ Ask questions or discuss in #general 💬  
-
-Make sure to react to the rules to get full access to the server ✅
-
-Let’s build something amazing together! 🚀
-`);
-});
-// --- Points/gamification ---
-client.on('messageCreate', message => {
-    if (message.author.bot) return;
-
-    const userId = message.author.id;
-    points[userId] = (points[userId] || 0) + 1;
-
-    if (points[userId] % 10 === 0) {
-        message.channel.send(`${message.author.username} reached ${points[userId]} points! 🎉`);
-    }
-
-    saveData();
-});
-
-// --- GitHub Fetching ---
-const REPO_LIST = ['OpenLake/Not-a-Mess','OpenLake/student_database_cosa']; // Add your repos
-const FETCH_INTERVAL = 1000 * 30; // 30 min
+// ---------------------- FETCH PRs & ISSUES ----------------------
 async function fetchPRsAndIssues(repo) {
-    const headers = {
-        'Accept': 'application/vnd.github.v3+json',
-    };
-
-    // Use token if available
+    const headers = { 'Accept': 'application/vnd.github.v3+json' };
     if (process.env.GITHUB_TOKEN) {
         headers['Authorization'] = `token ${process.env.GITHUB_TOKEN}`;
     }
 
     const prUrl = `https://api.github.com/repos/${repo}/pulls`;
-    const issuesUrl = `https://api.github.com/repos/${repo}/issues?labels=good%20first%20issue`;
+    const issuesUrl = `https://api.github.com/repos/${repo}/issues`;
+
 
     try {
+        console.log("prs");
         const prsResponse = await fetch(prUrl, { headers });
+        console.log("issues")
         const issuesResponse = await fetch(issuesUrl, { headers });
-
         const prs = await prsResponse.json();
+        console.log("prs.json");
+        
         const issues = await issuesResponse.json();
-
-        // Check for API errors
-        if (!Array.isArray(prs)) {
-            console.error(`Failed to fetch PRs for ${repo}:`, prs);
-            return { prs: [], issues: Array.isArray(issues) ? issues : [] };
-        }
-
-        if (!Array.isArray(issues)) {
-            console.error(`Failed to fetch issues for ${repo}:`, issues);
-            return { prs, issues: [] };
-        }
-        console.log(prs,issues);
-        return { prs, issues };
+console.log("issues.json");
+        
+        return {
+            prs: Array.isArray(prs) ? prs : [],
+            issues: Array.isArray(issues) ? issues : []
+        };
     } catch (error) {
-        console.error(`Error fetching PRs and issues for ${repo}:`, error);
+        console.error(`❌ Error fetching PRs & issues for ${repo}:`, error);
         return { prs: [], issues: [] };
     }
 }
+
+// ---------------------- POST PRs & ISSUES ----------------------
 async function postNewPRsAndIssues() {
-    for (const repo of REPO_LIST) {
+    const guild = client.guilds.cache.first();
+    if (!guild) {
+        console.error("Bot is not in any guild!");
+        return;
+    }
+
+    let openPRs = [];
+    let openIssues = [];
+
+    // Process repos from JSON only
+    for (const repo of Object.keys(REPO_CHANNELS)) {
         const { prs, issues } = await fetchPRsAndIssues(repo);
 
-        const repoName = repo.split('/')[1].toLowerCase();
-        const guild = client.guilds.cache.first();
-        if (!guild) {
-            console.error("Bot is not in any guild!");
+        // Collect currently open PRs & issues
+        openPRs.push(...prs.map(pr => pr.html_url));
+        openIssues.push(...issues.map(issue => issue.html_url));
+
+        const repoChannelName = REPO_CHANNELS[repo];
+        const repoChannel = guild.channels.cache.find(ch => ch.name === repoChannelName && ch.isTextBased());
+
+        if (!repoChannel) {
+            console.log(`⚠️ Repo channel ${repoChannelName} not found, skipping.`);
             continue;
         }
- 
-        let channel = guild.channels.cache.find(ch => ch.name === repoName && ch.isTextBased());
-        if (!channel) {
-            console.log(`Creating channel for ${repoName}...`);
-            channel = await guild.channels.create({
-                name: repoName,
-                type: 0 // GUILD_TEXT
-            });
-        } 
+
+        // --- Post New PRs ---
         const newPRs = prs.filter(pr => !postedPRs.includes(pr.html_url));
         for (const pr of newPRs.slice(0, 5)) {
-            const author = pr.user.login;
-            const avatarUrl = pr.user.avatar_url;
-            const body = pr.body ? pr.body.slice(0, 300) + (pr.body.length > 300 ? "..." : "") : "No description provided.";
-            const status = pr.draft ? "🚧 Draft" : pr.state === "open" ? "🟢 Open" : "✅ Merged/Closed";
-            const labels = pr.labels?.length
-                ? pr.labels.map(label => `\`${label.name}\``).join(", ")
-                : "None";
-
             const embed = new EmbedBuilder()
-                .setAuthor({ name: author, iconURL: avatarUrl, url: pr.user.html_url })
+                .setAuthor({ name: pr.user.login, iconURL: pr.user.avatar_url, url: pr.user.html_url })
                 .setTitle(`🔹 ${pr.title}`)
                 .setURL(pr.html_url)
                 .setDescription(
                     `**Repository:** ${repo}\n` +
-                    `**Status:** ${status}\n` +
-                    `**Labels:** ${labels}\n\n` +
-                    `**Description:**\n${body}`
+                    `**Status:** ${pr.draft ? "🚧 Draft" : pr.state === "open" ? "🟢 Open" : "✅ Closed"}\n\n` +
+                    `${pr.body ? pr.body.slice(0, 300) + (pr.body.length > 300 ? "..." : "") : "No description"}`
                 )
                 .setColor(0x3498DB)
                 .setFooter({ text: `PR #${pr.number} | Created at` })
                 .setTimestamp(new Date(pr.created_at));
 
-            await channel.send({ embeds: [embed] });
+            await repoChannel.send({ embeds: [embed] });
             postedPRs.push(pr.html_url);
         }
- 
+
+        // --- Post Issues ---
         const newIssues = issues.filter(issue => !postedIssues.includes(issue.html_url));
         for (const issue of newIssues.slice(0, 5)) {
-            const author = issue.user.login;
-            const avatarUrl = issue.user.avatar_url;
-            const body = issue.body ? issue.body.slice(0, 300) + (issue.body.length > 300 ? "..." : "") : "No description provided.";
             const labels = issue.labels?.length
                 ? issue.labels.map(label => `\`${label.name}\``).join(", ")
                 : "None";
 
-            const embed = new EmbedBuilder()
-                .setAuthor({ name: author, iconURL: avatarUrl, url: issue.user.html_url })
-                .setTitle(`🟢 Good First Issue: ${issue.title}`)
+            // Detailed issue in repo channel
+            const detailedEmbed = new EmbedBuilder()
+                .setAuthor({ name: issue.user.login, iconURL: issue.user.avatar_url, url: issue.user.html_url })
+                .setTitle(`📝 Issue: ${issue.title}`)
                 .setURL(issue.html_url)
                 .setDescription(
                     `**Repository:** ${repo}\n` +
                     `**Labels:** ${labels}\n\n` +
-                    `**Description:**\n${body}`
+                    `**Description:**\n${issue.body || "No description provided."}`
                 )
                 .setColor(0xE67E22)
                 .setFooter({ text: `Issue #${issue.number} | Created at` })
                 .setTimestamp(new Date(issue.created_at));
 
-            await channel.send({ embeds: [embed] });
+            await repoChannel.send({ embeds: [detailedEmbed] });
+
+            // Good first issues → post in general
+            if (issue.labels?.some(label => label.name.toLowerCase() === "good first issue")) {
+                const generalChannel = guild.channels.cache.find(ch => ch.name === GENERAL_CHANNEL_NAME && ch.isTextBased());
+                if (generalChannel) {
+                    const briefEmbed = new EmbedBuilder()
+                        .setTitle(`🟢 Good First Issue: ${issue.title}`)
+                        .setURL(issue.html_url)
+                        .setDescription(`**Repository:** ${repo}\n**Author:** ${issue.user.login}`)
+                        .setColor(0x2ECC71);
+
+                    await generalChannel.send({ embeds: [briefEmbed] });
+                }
+            }
+
             postedIssues.push(issue.html_url);
         }
-
-        saveData();
     }
+
+    // 🧹 Clean up solved PRs & Issues
+    postedPRs = postedPRs.filter(url => openPRs.includes(url));
+    postedIssues = postedIssues.filter(url => openIssues.includes(url));
+
+    // Save updated data
+    saveData();
 }
 
-
-// Run periodically
+// ---------------------- BOT START ----------------------
 setInterval(() => {
     postNewPRsAndIssues().catch(console.error);
 }, FETCH_INTERVAL);
 
-client.on('ready', () => {
-    console.log(`Logged in as ${client.user.tag}!`);
-    postNewPRsAndIssues(); 
+client.on('ready', async () => {
+    console.log(`✅ Logged in as ${client.user.tag}`);
+    postNewPRsAndIssues();
 });
 
 client.login(process.env.TOKEN);

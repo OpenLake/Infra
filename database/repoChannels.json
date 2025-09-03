@@ -1,0 +1,29 @@
+{
+  "generalChannel": "general",
+  "repos": {
+    "Openlake/career-scrapper": "career-scrapper",
+    "Openlake/auth-kit": "auth-kit",
+    "Openlake/iit-bhilai-rag": "iit-bhilai-rag",
+    "Openlake/infra": "infra",
+    "Openlake/ride-share": "ride-share",
+    "Openlake/Student_Database_COSA": "student_database",
+    "Openlake/leaderboard_pro": "leaderboard_pro",
+    "Openlake/ccps-portal": "ccps-portal",
+    "Openlake/canonforces": "canonforces",
+    "Openlake/ksp": "ksp",
+    "Openlake/RateMyCourse": "rate_my_course",
+    "Openlake/Bhilaipedia": "bhilaipedia",
+    "Openlake/Campus-Marketplace": "campus-marketplace",
+    "Openlake/Smart-Insti-App": "smart_insti_app",
+    "Openlake/not-a-mess": "not-a-mess",
+    "Openlake/Sampoorna": "sampoorna",
+    "Openlake/OpenLake--Website": "openlake_website",
+    "Openlake/File-Sharing-App": "file_sharing_app",
+    "Openlake/Quiz-App": "quiz-app",
+    "Openlake/find-your-cluster": "find-your-cluster",
+    "Openlake/homework-scheduler": "homework-scheduler",
+    "Openlake/campus-navigation": "campus-navigation",
+    "Openlake/watch-party": "watch-party",
+    "Openlake/bit": "bit"
+  }
+}

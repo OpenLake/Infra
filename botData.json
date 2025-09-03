@@ -1,14 +1,21 @@
 {
   "postedPRs": [
-    "https://github.com/OpenLake/Not-a-Mess/pull/5",
-    "https://github.com/OpenLake/Not-a-Mess/pull/2"
+    "https://github.com/OpenLake/canonforces/pull/49",
+    "https://github.com/OpenLake/canonforces/pull/48",
+    "https://github.com/OpenLake/canonforces/pull/47"
   ],
   "postedIssues": [
-    "https://github.com/OpenLake/Student_Database_COSA/issues/88",
-    "https://github.com/OpenLake/Student_Database_COSA/issues/87"
+    "https://github.com/OpenLake/canonforces/pull/49",
+    "https://github.com/OpenLake/canonforces/pull/48",
+    "https://github.com/OpenLake/canonforces/pull/47",
+    "https://github.com/OpenLake/canonforces/issues/43",
+    "https://github.com/OpenLake/canonforces/issues/42",
+    "https://github.com/OpenLake/canonforces/issues/41",
+    "https://github.com/OpenLake/canonforces/issues/40",
+    "https://github.com/OpenLake/canonforces/issues/39",
+    "https://github.com/OpenLake/canonforces/issues/38",
+    "https://github.com/OpenLake/canonforces/issues/37",
+    "https://github.com/OpenLake/canonforces/issues/35"
   ],
-  "points": {
-    "1105730016907636777": 1,
-    "1205201996492046369": 20
-  }
+  "points": {}
 }
