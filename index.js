@@ -1,8 +1,7 @@
 require('dotenv').config();
-const { Client, IntentsBitField, EmbedBuilder, Collection } = require('discord.js');
+const { Client, IntentsBitField, EmbedBuilder } = require('discord.js');
 const fetch = require('node-fetch');
-const fs = require('fs');
-const path = require('path');
+const { MongoClient } = require('mongodb');
 
 // ---------------------- DISCORD CLIENT ----------------------
 const client = new Client({
@@ -14,30 +13,24 @@ const client = new Client({
     ]
 });
 
-// ---------------------- VARIABLES ----------------------
-let postedPRs = [];
-let postedIssues = [];
-let points = {};
+// ---------------------- DATABASE ----------------------
+const mongoClient = new MongoClient(process.env.ACCESS_URL);
+let postedM, userPoints;
 
+async function initDB() {
+    await mongoClient.connect();
+    const db = mongoClient.db("discordBot"); // db name can be anything you like
+    postedM = db.collection("postedM");
+    userPoints = db.collection("user_points");
+    console.log("✅ MongoDB connected");
+}
+
+// ---------------------- VARIABLES ----------------------
 const repoConfig = require('./database/repoChannels.json');
 const REPO_CHANNELS = repoConfig.repos;
 const GENERAL_CHANNEL_NAME = repoConfig.generalChannel;
 
-const DATA_FILE = './botData.json';
 const FETCH_INTERVAL = 1000 * 60 * 4;
-
-// ---------------------- LOAD SAVED DATA ----------------------
-if (fs.existsSync(DATA_FILE)) {
-    const raw = fs.readFileSync(DATA_FILE);
-    const savedData = JSON.parse(raw);
-    postedPRs = savedData.postedPRs || [];
-    postedIssues = savedData.postedIssues || [];
-    points = savedData.points || {};
-}
-
-function saveData() {
-    fs.writeFileSync(DATA_FILE, JSON.stringify({ postedPRs, postedIssues, points }, null, 2));
-}
 
 // ---------------------- FETCH PRs & ISSUES ----------------------
 async function fetchPRsAndIssues(repo) {
@@ -49,27 +42,86 @@ async function fetchPRsAndIssues(repo) {
     const prUrl = `https://api.github.com/repos/${repo}/pulls`;
     const issuesUrl = `https://api.github.com/repos/${repo}/issues`;
 
-
     try {
-        console.log("prs");
-        const prsResponse = await fetch(prUrl, { headers });
-        console.log("issues")
-        const issuesResponse = await fetch(issuesUrl, { headers });
+        const [prsResponse, issuesResponse] = await Promise.all([
+            fetch(prUrl, { headers }),
+            fetch(issuesUrl, { headers })
+        ]);
+
         const prs = await prsResponse.json();
-        console.log("prs.json");
-        
         const issues = await issuesResponse.json();
-console.log("issues.json");
-        
+
         return {
             prs: Array.isArray(prs) ? prs : [],
             issues: Array.isArray(issues) ? issues : []
         };
     } catch (error) {
-        console.error(`❌ Error fetching PRs & issues for ${repo}:`, error);
+    //    console.error(`❌ Error fetching PRs & issues for ${repo}:`, error);
         return { prs: [], issues: [] };
     }
+} 
+// ---------------------- SIMPLE LEVEL SYSTEM ----------------------
+function pointsForLevel(level) {
+    return (level - 1) * level * 5;  
+    // Level 2 = 10, Level 3 = 30, Level 4 = 60, Level 5 = 100, ...
 }
+
+function getLevel(points) {
+    let level = 1;
+    while (points >= pointsForLevel(level + 1)) {
+        level++;
+    }
+    return level;
+}
+
+
+// ---------------------- MESSAGE-BASED POINTS ----------------------
+client.on('messageCreate', async (message) => {
+    if (message.author.bot) return;
+
+    const userId = message.author.id;  // stable unique ID
+    const username = message.author.username;
+    const guild = message.guild;
+
+    try {
+        // Increment or insert
+        const result = await userPoints.findOneAndUpdate(
+    { userId },
+    {
+        $inc: { points: 1 },
+        $set: { user: username, userId } // update username if it changed
+    },
+    { upsert: true, returnDocument: "after" } // for MongoDB v4+
+    // If still not working, try: { upsert: true, returnOriginal: false }
+);
+
+    // Safely get updated points
+    const totalPoints = result?.value?.points || result?.points || 0;
+
+    const newLevel = getLevel(totalPoints);
+    const oldLevel = getLevel(totalPoints - 1);
+        // Level up check
+        if (newLevel > oldLevel) {
+        // Prefer channel ID (safer)
+            const generalChannel = guild.channels.cache.get(GENERAL_CHANNEL_NAME);
+
+            if (generalChannel && generalChannel.isTextBased()) {
+                await generalChannel.send(
+                    `🎉 <@${userId}> has reached **Level ${newLevel}** !`
+                );
+            } 
+            // else {
+               
+            //     // console.error("⚠️ General channel not found or not text-based");
+            // }
+        }
+
+
+        //console.log(`⭐ ${username} (${userId}) now has ${totalPoints} points (Level ${newLevel})`);
+    } catch (err) {
+        //console.error("❌ Error updating user points:", err);
+    }
+});
 
 // ---------------------- POST PRs & ISSUES ----------------------
 async function postNewPRsAndIssues() {
@@ -82,11 +134,9 @@ async function postNewPRsAndIssues() {
     let openPRs = [];
     let openIssues = [];
 
-    // Process repos from JSON only
     for (const repo of Object.keys(REPO_CHANNELS)) {
         const { prs, issues } = await fetchPRsAndIssues(repo);
 
-        // Collect currently open PRs & issues
         openPRs.push(...prs.map(pr => pr.html_url));
         openIssues.push(...issues.map(issue => issue.html_url));
 
@@ -94,12 +144,15 @@ async function postNewPRsAndIssues() {
         const repoChannel = guild.channels.cache.find(ch => ch.name === repoChannelName && ch.isTextBased());
 
         if (!repoChannel) {
-            console.log(`⚠️ Repo channel ${repoChannelName} not found, skipping.`);
+        //    console.log(`⚠️ Repo channel ${repoChannelName} not found, skipping.`);
             continue;
         }
 
-        // --- Post New PRs ---
-        const newPRs = prs.filter(pr => !postedPRs.includes(pr.html_url));
+        // Load DB data
+        const dbData = await postedM.findOne({ repo }) || { prs: [], issues: [] };
+
+        // --- New PRs ---
+        const newPRs = prs.filter(pr => !dbData.prs.includes(pr.html_url));
         for (const pr of newPRs.slice(0, 5)) {
             const embed = new EmbedBuilder()
                 .setAuthor({ name: pr.user.login, iconURL: pr.user.avatar_url, url: pr.user.html_url })
@@ -115,17 +168,17 @@ async function postNewPRsAndIssues() {
                 .setTimestamp(new Date(pr.created_at));
 
             await repoChannel.send({ embeds: [embed] });
-            postedPRs.push(pr.html_url);
+
+            
         }
 
-        // --- Post Issues ---
-        const newIssues = issues.filter(issue => !postedIssues.includes(issue.html_url));
+        // --- New Issues ---
+        const newIssues = issues.filter(issue => !dbData.issues.includes(issue.html_url));
         for (const issue of newIssues.slice(0, 5)) {
             const labels = issue.labels?.length
                 ? issue.labels.map(label => `\`${label.name}\``).join(", ")
                 : "None";
 
-            // Detailed issue in repo channel
             const detailedEmbed = new EmbedBuilder()
                 .setAuthor({ name: issue.user.login, iconURL: issue.user.avatar_url, url: issue.user.html_url })
                 .setTitle(`📝 Issue: ${issue.title}`)
@@ -141,7 +194,8 @@ async function postNewPRsAndIssues() {
 
             await repoChannel.send({ embeds: [detailedEmbed] });
 
-            // Good first issues → post in general
+         
+            // Extra: Good first issues → post in general
             if (issue.labels?.some(label => label.name.toLowerCase() === "good first issue")) {
                 const generalChannel = guild.channels.cache.find(ch => ch.name === GENERAL_CHANNEL_NAME && ch.isTextBased());
                 if (generalChannel) {
@@ -154,17 +208,15 @@ async function postNewPRsAndIssues() {
                     await generalChannel.send({ embeds: [briefEmbed] });
                 }
             }
-
-            postedIssues.push(issue.html_url);
         }
+
+        // --- Update DB (replace old with new state) ---
+        await postedM.updateOne(
+            { repo },
+            { $set: { prs: openPRs, issues: openIssues } },
+            { upsert: true }
+        );
     }
-
-    // 🧹 Clean up solved PRs & Issues
-    postedPRs = postedPRs.filter(url => openPRs.includes(url));
-    postedIssues = postedIssues.filter(url => openIssues.includes(url));
-
-    // Save updated data
-    saveData();
 }
 
 // ---------------------- BOT START ----------------------
@@ -174,6 +226,7 @@ setInterval(() => {
 
 client.on('ready', async () => {
     console.log(`✅ Logged in as ${client.user.tag}`);
+    await initDB();
     postNewPRsAndIssues();
 });
 
