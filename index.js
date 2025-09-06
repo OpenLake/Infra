@@ -1,4 +1,4 @@
-require('dotenv').config();
+// require('dotenv').config();
 const { Client, IntentsBitField, EmbedBuilder } = require('discord.js');
 const fetch = require('node-fetch');
 const { MongoClient } = require('mongodb');
