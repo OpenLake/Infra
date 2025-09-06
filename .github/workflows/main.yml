@@ -1,4 +1,4 @@
-name: Discord Bot Cron
+name: discordbot
 
 on:
   push:                     # runs on every push to main
