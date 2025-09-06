@@ -1,0 +1,37 @@
+name: Discord Bot Cron
+
+on:
+  schedule:
+    - cron: "0 * * * *"   # every hour
+  workflow_dispatch:       # allow manual run
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350   # max safe runtime before GitHub kills it (~6h limit)
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install --omit=dev
+
+      - name: Start bot
+        env:
+          TOKEN: ${{ secrets.TOKEN }}
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          GUILD_ID: ${{ secrets.GUILD_ID }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          USER_NAME: ${{ secrets.USER_NAME }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+          ACCESS_URL: ${{ secrets.ACCESS_URL }}
+          PORT: 3000
+        run: |
+          echo "🚀 Starting Discord bot..."
+          node index.js
