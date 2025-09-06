@@ -1,4 +1,4 @@
-name: Discord Bot
+name: discordbot
 
 on:
   workflow_dispatch:   # manual trigger
@@ -27,7 +27,7 @@ jobs:
           TOKEN: ${{ secrets.TOKEN }}
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
           GUILD_ID: ${{ secrets.GUILD_ID }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GT_TOKEN }}
           USER_NAME: ${{ secrets.USER_NAME }}
           PASSWORD: ${{ secrets.PASSWORD }}
           ACCESS_URL: ${{ secrets.ACCESS_URL }}
