@@ -1,14 +1,17 @@
 name: Discord Bot Cron
 
 on:
+  push:                     # runs on every push to main
+    branches:
+      - main                # change if your default branch is 'master'
   schedule:
-    - cron: "0 * * * *"   # every hour
-  workflow_dispatch:       # allow manual run
+    - cron: "0 * * * *"     # every hour
+  workflow_dispatch:         # allow manual run
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
-    timeout-minutes: 350   # max safe runtime before GitHub kills it (~6h limit)
+    timeout-minutes: 350
 
     steps:
       - name: Checkout repo
