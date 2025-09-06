@@ -3,6 +3,7 @@ const { Client, IntentsBitField, EmbedBuilder } = require('discord.js');
 const fetch = require('node-fetch');
 const { MongoClient } = require('mongodb');
 const express = require("express");
+console.log("ACCESS_URL starts with:", process.env.ACCESS_URL?.slice(0, 10));
 
 
 const app = express();
