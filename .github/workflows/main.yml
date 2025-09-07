@@ -1,18 +1,14 @@
 name: discordbot
 
 on:
-  push:                     # runs on every push to main
-    branches:
-      - main                # change if your default branch is 'master'
   schedule:
-    - cron: "0 * * * *"     # every hour
-  workflow_dispatch:         # allow manual run
+    - cron: "0 */5 * * *"   
+  workflow_dispatch:         
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
-    timeout-minutes: 350
-
+    timeout-minutes: 350      
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -30,7 +26,7 @@ jobs:
           TOKEN: ${{ secrets.TOKEN }}
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
           GUILD_ID: ${{ secrets.GUILD_ID }}
-          GITHUB_TOKEN: ${{ secrets.GT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           USER_NAME: ${{ secrets.USER_NAME }}
           PASSWORD: ${{ secrets.PASSWORD }}
           ACCESS_URL: ${{ secrets.ACCESS_URL }}
