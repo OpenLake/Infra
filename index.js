@@ -174,25 +174,27 @@ async function postNewPRsAndIssues() {
 
         // --- New PRs ---
         const newPRs = prs.filter(pr => !dbData.prs.includes(pr.html_url));
-        for (const pr of newPRs.slice(0, 5)) {
-                       
-            const embed = new EmbedBuilder()
-                .setAuthor({ name: issue.user.login, iconURL: issue.user.avatar_url, url: issue.user.html_url })
-                .setTitle(`📝 Issue: ${issue.title}`)
-                .setURL(issue.html_url)
-                .setDescription(
-                    `**Repository:** ${repo}\n` +
-                    `**Labels:** ${labels}\n\n` +
-                    `**Description:**\n${truncate(issue.body, 4000)}`
-                )
-                .setColor(0xE67E22)
-                .setFooter({ text: `Issue #${issue.number} | Created at` })
-                .setTimestamp(new Date(issue.created_at));
+for (const pr of newPRs.slice(0, 5)) {
+    const labels = pr.labels?.length
+        ? pr.labels.map(label => `\`${label.name}\``).join(", ")
+        : "None";
 
-            await repoChannel.send({ embeds: [embed] });
+    const embed = new EmbedBuilder()
+        .setAuthor({ name: pr.user.login, iconURL: pr.user.avatar_url, url: pr.user.html_url })
+        .setTitle(`📝 PR: ${pr.title}`)
+        .setURL(pr.html_url)
+        .setDescription(
+            `**Repository:** ${repo}\n` +
+            `**Labels:** ${labels}\n\n` +
+            `**Description:**\n${truncate(pr.body, 4000)}`
+        )
+        .setColor(0x3498DB) // Example color for PR
+        .setFooter({ text: `PR #${pr.number} | Created at` })
+        .setTimestamp(new Date(pr.created_at));
 
-            
-        }
+    await repoChannel.send({ embeds: [embed] });
+}
+
 
         // --- New Issues ---
         const newIssues = issues.filter(issue => !dbData.issues.includes(issue.html_url));
