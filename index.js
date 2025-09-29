@@ -179,18 +179,17 @@ for (const pr of newPRs.slice(0, 5)) {
         ? pr.labels.map(label => `\`${label.name}\``).join(", ")
         : "None";
 
-    const embed = new EmbedBuilder()
-        .setAuthor({ name: pr.user.login, iconURL: pr.user.avatar_url, url: pr.user.html_url })
-        .setTitle(`📝 PR: ${pr.title}`)
-        .setURL(pr.html_url)
-        .setDescription(
-            `**Repository:** ${repo}\n` +
-            `**Labels:** ${labels}\n\n` +
-            `**Description:**\n${truncate(pr.body, 4000)}`
-        )
-        .setColor(0x3498DB) // Example color for PR
-        .setFooter({ text: `PR #${pr.number} | Created at` })
-        .setTimestamp(new Date(pr.created_at));
+   const embed = new EmbedBuilder()
+  .setAuthor({ name: pr.user.login, iconURL: pr.user.avatar_url, url: pr.user.html_url })
+  .setTitle(`📝 PR: ${pr.title}`)
+  .setURL(pr.html_url)
+  .addFields(
+    { name: "Repository", value: repo, inline: true },
+    { name: "Labels", value: labels, inline: true }
+  )
+  .setColor(0x3498DB)
+  .setFooter({ text: `PR #${pr.number} | Created at` })
+  .setTimestamp(new Date(pr.created_at));
 
     await repoChannel.send({ embeds: [embed] });
 }
@@ -202,19 +201,17 @@ for (const pr of newPRs.slice(0, 5)) {
             const labels = issue.labels?.length
                 ? issue.labels.map(label => `\`${label.name}\``).join(", ")
                 : "None";
-
-            const detailedEmbed = new EmbedBuilder()
-                .setAuthor({ name: issue.user.login, iconURL: issue.user.avatar_url, url: issue.user.html_url })
-                .setTitle(`📝 Issue: ${issue.title}`)
-                .setURL(issue.html_url)
-                .setDescription(
-                    `**Repository:** ${repo}\n` +
-                    `**Labels:** ${labels}\n\n` +
-                    `**Description:**\n${issue.body || "No description provided."}`
-                )
-                .setColor(0xE67E22)
-                .setFooter({ text: `Issue #${issue.number} | Created at` })
-                .setTimestamp(new Date(issue.created_at));
+const detailedEmbed = new EmbedBuilder()
+  .setAuthor({ name: issue.user.login, iconURL: issue.user.avatar_url, url: issue.user.html_url })
+  .setTitle(`📝 Issue: ${issue.title}`)
+  .setURL(issue.html_url)
+  .addFields(
+    { name: "Repository", value: repo, inline: true },
+    { name: "Labels", value: labels, inline: true }
+  )
+  .setColor(0xE67E22)
+  .setFooter({ text: `Issue #${issue.number} | Created at` })
+  .setTimestamp(new Date(issue.created_at));
 
             await repoChannel.send({ embeds: [detailedEmbed] });
 
