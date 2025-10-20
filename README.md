@@ -1,35 +1,27 @@
- 
-<h1 align="center">Project Name</h1>
+
+<h1 align="center">OpenLake Infrastructure</h1>
 
 <p align="center">
-A concise one-line description of what the project does and why it exists.
+A unified repository containing all automation tools, scripts, configurations, and bots that keep OpenLake’s operations running smoothly.
 </p>
 
 <p align="center">
-    <!-- Status Options: Change `Deployed` to `In Development`, `Planned`, etc. -->
     <img src="https://img.shields.io/badge/Status-Deployed-brightgreen" alt="Status: Deployed" />
-    <!-- Development Stage Options: Change `Ongoing` to `Completed`, `Maintenance`, etc. -->
     <img src="https://img.shields.io/badge/Development-Ongoing-blue" alt="Development: Ongoing" />
-    <!-- License Options: Change `MIT` to your preferred license -->
     <img src="https://img.shields.io/badge/License-MIT-yellow" alt="License: MIT" />
 </p>
+
 <p align="center">
-<p align="center">
-    <!-- Automatically updates based on repo -->
-    <img src="https://img.shields.io/github/issues-pr-closed/your-username/project-name?color=success" alt="Pull Requests Merged" />
-    <img src="https://img.shields.io/github/issues/your-username/project-name?color=orange" alt="Open Issues" />
-    <img src="https://img.shields.io/github/contributors/your-username/project-name" alt="Contributors" />
-</p>
+    <img src="https://img.shields.io/github/issues-pr-closed/OpenLake/openlake-infra?color=success" alt="Pull Requests Merged" />
+    <img src="https://img.shields.io/github/issues/OpenLake/openlake-infra?color=orange" alt="Open Issues" />
+    <img src="https://img.shields.io/github/contributors/OpenLake/openlake-infra" alt="Contributors" />
 </p>
 
 ---
 
 ## Repository Links <sup>[↥ Back to top](#table-of-contents)</sup>
 - **Main Repository:** [OpenLake](https://github.com/OpenLake)
-- **This Project Repository:** [Project Name](https://github.com/your-username/project-name)
-
-
-
+- **This Project Repository:** [openlake-infra](https://github.com/OpenLake/openlake-infra)
 
 ---
 
@@ -44,56 +36,100 @@ A concise one-line description of what the project does and why it exists.
 ---
 
 ## About the Project <sup>[↥ Back to top](#table-of-contents)</sup>
-Explain:
-- The problem your project solves.
-- Who the target audience is.
-- How it fits in the ecosystem (mention OpenLake if relevant).
+
+The **OpenLake Infrastructure** repository is the backbone of OpenLake’s internal systems.  
+It consolidates all the tools, scripts, bots, and configurations that streamline operations across OpenLake’s projects and servers.
+
+### 🧩 Key Goals
+- Automate repetitive DevOps and community management tasks.
+- Manage and monitor OpenLake’s servers, bots, and GitHub automations.
+- Provide a transparent and organized place for infrastructure-related contributions.
+
+### 👥 Target Audience
+- **OpenLake developers** who maintain our servers, repositories, and bots.
+- **Contributors** looking to add automation or improve operational efficiency.
+
+### 🌊 Part of the OpenLake Ecosystem
+This project supports other OpenLake projects by maintaining their infrastructure — ensuring smooth CI/CD pipelines, community automation, and reliable server uptime.
 
 ---
 
 ## Getting Started <sup>[↥ Back to top](#table-of-contents)</sup>
 
 ### Prerequisites
-List the dependencies and tools required.
+Install dependencies based on the module you want to run.
 
 ```bash
-# Example for Node.js
+# For Node.js scripts
 npm install
+
+# For Python scripts
+pip install -r requirements.txt
 ````
 
 ### Installation
 
-Step-by-step instructions to set up locally.
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/OpenLake/openlake-infra.git
+   cd openlake-infra
+   ```
+
+2. Copy and configure environment variables:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+3. Refer to the `/docs` folder for detailed setup instructions for each module (bots, servers, actions, etc.).
 
 ---
 
 ## Usage <sup>[↥ Back to top](#table-of-contents)</sup>
 
-Provide examples of how to run or use the project.
+Each component is modular and self-contained.
+
+### Example: Run a Discord Bot
 
 ```bash
+cd bots/discord
 npm start
 ```
 
-Explain configuration options if needed.
+### Example: Execute a GitHub Action Script Locally
+
+```bash
+act -j cleanup-old-branches
+```
+
+### Example: Deploy VPS Configuration
+
+```bash
+bash server/vps-configs/deploy.sh
+```
+
+More examples and configurations are available in their respective folders.
 
 ---
 
 ## Contributing <sup>[↥ Back to top](#table-of-contents)</sup>
 
-We welcome contributions!
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+We welcome contributions from OpenLake members and the community!
+If you’ve created a bot, automation, or useful script that enhances OpenLake operations — feel free to open a PR.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed contribution guidelines.
 
 ---
 
 ## Maintainers <sup>[↥ Back to top](#table-of-contents)</sup>
-Current Maintainers: <insert_github_link>
-See [MAINTAINERS.md](MAINTAINERS.md) for a full list.
+
+Current Maintainers: [@OpenLake-Core](https://github.com/OpenLake)
+See [MAINTAINERS.md](MAINTAINERS.md) for the full list.
 
 ---
 
 ## License <sup>[↥ Back to top](#table-of-contents)</sup>
 
-Distributed under the MIT License.
-See [LICENSE](LICENSE) for details.
- 
+Distributed under the **MIT License**.
+See [LICENSE](LICENSE) for more details.
