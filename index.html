@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Mini Floating Browser</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 20px; }
+  #miniWindow { 
+    position: fixed; 
+    bottom: 10px; 
+    right: 10px; 
+    width: 300px; 
+    height: 200px; 
+    border: 2px solid #000; 
+    border-radius: 8px; 
+    box-shadow: 0 0 10px rgba(0,0,0,0.5); 
+    z-index: 9999; 
+    background: #fff; 
+  }
+  #miniHeader { 
+    background: #333; 
+    color: #fff; 
+    padding: 4px; 
+    cursor: move; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+  }
+  #miniHeader button { 
+    background: #555; 
+    color: #fff; 
+    border: none; 
+    border-radius: 3px; 
+    cursor: pointer; 
+  }
+  #urlInput { width: 70%; padding: 2px; }
+  #iframeContainer { width: 100%; height: calc(100% - 30px); }
+  #iframeContainer iframe { width: 100%; height: 100%; border: none; }
+</style>
+</head>
+<body>
+
+<h3>Mini Floating Browser</h3>
+<input type="text" id="urlInput" placeholder="Enter URL (https://example.com)">
+<button id="openBtn">Open</button>
+
+<div id="miniWindow" style="display:none;">
+  <div id="miniHeader">
+    <span>Mini Browser</span>
+    <div>
+      <button id="minBtn">_</button>
+      <button id="closeBtn">X</button>
+    </div>
+  </div>
+  <div id="iframeContainer"></div>
+</div>
+
+<script>
+  const miniWindow = document.getElementById('miniWindow');
+  const iframeContainer = document.getElementById('iframeContainer');
+  const openBtn = document.getElementById('openBtn');
+  const urlInput = document.getElementById('urlInput');
+  const closeBtn = document.getElementById('closeBtn');
+  const minBtn = document.getElementById('minBtn');
+  let isMinimized = false;
+
+  openBtn.onclick = () => {
+    const url = urlInput.value.trim();
+    if (!url) return alert('Enter a URL!');
+    iframeContainer.innerHTML = `<iframe src="${url}?igu=1"></iframe>`;
+    miniWindow.style.display = 'block';
+    if (isMinimized) toggleMinimize();
+  };
+
+  closeBtn.onclick = () => miniWindow.style.display = 'none';
+  minBtn.onclick = toggleMinimize;
+
+  function toggleMinimize() {
+    isMinimized = !isMinimized;
+    iframeContainer.style.display = isMinimized ? 'none' : 'block';
+    miniWindow.style.height = isMinimized ? '30px' : '200px';
+  }
+
+  // Dragging
+  const header = document.getElementById('miniHeader');
+  header.onmousedown = function(e) {
+    const offsetX = e.clientX - miniWindow.getBoundingClientRect().left;
+    const offsetY = e.clientY - miniWindow.getBoundingClientRect().top;
+
+    function moveHandler(e) {
+      miniWindow.style.left = e.clientX - offsetX + 'px';
+      miniWindow.style.top = e.clientY - offsetY + 'px';
+    }
+    function upHandler() {
+      document.removeEventListener('mousemove', moveHandler);
+      document.removeEventListener('mouseup', upHandler);
+    }
+    document.addEventListener('mousemove', moveHandler);
+    document.addEventListener('mouseup', upHandler);
+  };
+</script>
+
+</body>
+</html>
