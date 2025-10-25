@@ -1,4 +1,8 @@
-//  require('dotenv').config();
+<<<<<<< HEAD
+ require('dotenv').config();
+=======
+// require('dotenv').config();
+>>>>>>> 0b8a326e68f75c645f22b90875ff5a5f0b6b8e0b
 const { Client, IntentsBitField, EmbedBuilder } = require('discord.js');
 const fetch = require('node-fetch');
 const { MongoClient } = require('mongodb');
@@ -139,6 +143,97 @@ client.on('messageCreate', async (message) => {
         //console.error("❌ Error updating user points:", err);
     }
 });
+async function postNewPRsAndIssues_batch() {
+    const guild = client.guilds.cache.first();
+    if (!guild) {
+        console.error("Bot is not in any guild!");
+        return;
+    }
+
+    for (const repo of Object.keys(REPO_CHANNELS)) {
+        const { prs, issues } = await fetchPRsAndIssues(repo);
+
+        const repoChannelName = REPO_CHANNELS[repo];
+        const repoChannel = guild.channels.cache.find(
+            ch => ch.name === repoChannelName && ch.isTextBased()
+        );
+
+        if (!repoChannel) {
+            console.log(`⚠️ Repo channel ${repoChannelName} not found, skipping.`);
+            continue;
+        }
+
+        // Get previously posted data
+        const dbData = await postedM.findOne({ repo }) || { prs: [], issues: [] };
+
+        // Identify new PRs and Issues
+        const newPRs = prs.filter(pr => !dbData.prs.includes(pr.html_url));
+        const newIssues = issues.filter(issue => !dbData.issues.includes(issue.html_url));
+
+        // === Batch Embed for PRs ===
+        if (newPRs.length > 0) {
+            const prList = newPRs.map(pr => 
+                `• [${pr.title}](${pr.html_url}) by [${pr.user.login}](${pr.user.html_url})`
+            ).join('\n');
+
+            const prEmbed = new EmbedBuilder()
+                .setTitle(`🔹 New Pull Requests for ${repo}`)
+                .setDescription(prList.slice(0, 4000) || "No new pull requests this week.")
+                .setColor(0x3498DB)
+                .setTimestamp(new Date());
+
+            await repoChannel.send({ embeds: [prEmbed] });
+        }
+
+        // === Batch Embed for Issues ===
+        if (newIssues.length > 0) {
+            const issueList = newIssues.map(issue => 
+                `• [${issue.title}](${issue.html_url}) by [${issue.user.login}](${issue.user.html_url})`
+            ).join('\n');
+
+            const issueEmbed = new EmbedBuilder()
+                .setTitle(`📝 New Issues for ${repo}`)
+                .setDescription(issueList.slice(0, 4000) || "No new issues this week.")
+                .setColor(0xE67E22)
+                .setTimestamp(new Date());
+
+            await repoChannel.send({ embeds: [issueEmbed] });
+
+            // Optional: Highlight “good first issues” in the general channel
+            const goodFirstIssues = newIssues.filter(issue =>
+                issue.labels?.some(label => label.name.toLowerCase() === "good first issue")
+            );
+
+            if (goodFirstIssues.length > 0) {
+                const generalChannel = guild.channels.cache.find(
+                    ch => ch.name === GENERAL_CHANNEL_NAME && ch.isTextBased()
+                );
+                if (generalChannel) {
+                    const gfiList = goodFirstIssues.map(issue => 
+                        `• [${issue.title}](${issue.html_url}) by [${issue.user.login}](${issue.user.html_url})`
+                    ).join('\n');
+
+                    const gfiEmbed = new EmbedBuilder()
+                        .setTitle(`🟢 Good First Issues in ${repo}`)
+                        .setDescription(gfiList.slice(0, 4000))
+                        .setColor(0x2ECC71)
+                        .setTimestamp(new Date());
+
+                    await generalChannel.send({ embeds: [gfiEmbed] });
+                }
+            }
+        }
+
+        // === Update DB state ===
+        await postedM.updateOne(
+            { repo },
+            { $set: { prs: prs.map(p => p.html_url), issues: issues.map(i => i.html_url) } },
+            { upsert: true }
+        );
+    }
+
+    console.log("✅ Weekly batch posting complete.");
+}
 
 // ---------------------- POST PRs & ISSUES ----------------------
 async function postNewPRsAndIssues() {
