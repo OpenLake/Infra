@@ -1,18 +1,14 @@
 name: Discord Bot Cron
 
 on:
-  push:                     # runs on every push to main
-    branches:
-      - main                # change if your default branch is 'master'
   schedule:
-    - cron: "0 * * * *"     # every hour
-  workflow_dispatch:         # allow manual run
+    - cron: "0 0 */6 * *"   # every 6 days
+  workflow_dispatch:
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
     timeout-minutes: 350
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3

@@ -1,8 +1,9 @@
- require('dotenv').config();
+//  require('dotenv').config();
 const { Client, IntentsBitField, EmbedBuilder } = require('discord.js');
 const fetch = require('node-fetch');
 const { MongoClient } = require('mongodb');
 const express = require("express");
+console.log("ACCESS_URL starts with:", process.env.ACCESS_URL?.slice(0, 10));
 
 
 const app = express();
@@ -138,97 +139,6 @@ client.on('messageCreate', async (message) => {
         //console.error("❌ Error updating user points:", err);
     }
 });
-async function postNewPRsAndIssues_batch() {
-    const guild = client.guilds.cache.first();
-    if (!guild) {
-        console.error("Bot is not in any guild!");
-        return;
-    }
-
-    for (const repo of Object.keys(REPO_CHANNELS)) {
-        const { prs, issues } = await fetchPRsAndIssues(repo);
-
-        const repoChannelName = REPO_CHANNELS[repo];
-        const repoChannel = guild.channels.cache.find(
-            ch => ch.name === repoChannelName && ch.isTextBased()
-        );
-
-        if (!repoChannel) {
-            console.log(`⚠️ Repo channel ${repoChannelName} not found, skipping.`);
-            continue;
-        }
-
-        // Get previously posted data
-        const dbData = await postedM.findOne({ repo }) || { prs: [], issues: [] };
-
-        // Identify new PRs and Issues
-        const newPRs = prs.filter(pr => !dbData.prs.includes(pr.html_url));
-        const newIssues = issues.filter(issue => !dbData.issues.includes(issue.html_url));
-
-        // === Batch Embed for PRs ===
-        if (newPRs.length > 0) {
-            const prList = newPRs.map(pr => 
-                `• [${pr.title}](${pr.html_url}) by [${pr.user.login}](${pr.user.html_url})`
-            ).join('\n');
-
-            const prEmbed = new EmbedBuilder()
-                .setTitle(`🔹 New Pull Requests for ${repo}`)
-                .setDescription(prList.slice(0, 4000) || "No new pull requests this week.")
-                .setColor(0x3498DB)
-                .setTimestamp(new Date());
-
-            await repoChannel.send({ embeds: [prEmbed] });
-        }
-
-        // === Batch Embed for Issues ===
-        if (newIssues.length > 0) {
-            const issueList = newIssues.map(issue => 
-                `• [${issue.title}](${issue.html_url}) by [${issue.user.login}](${issue.user.html_url})`
-            ).join('\n');
-
-            const issueEmbed = new EmbedBuilder()
-                .setTitle(`📝 New Issues for ${repo}`)
-                .setDescription(issueList.slice(0, 4000) || "No new issues this week.")
-                .setColor(0xE67E22)
-                .setTimestamp(new Date());
-
-            await repoChannel.send({ embeds: [issueEmbed] });
-
-            // Optional: Highlight “good first issues” in the general channel
-            const goodFirstIssues = newIssues.filter(issue =>
-                issue.labels?.some(label => label.name.toLowerCase() === "good first issue")
-            );
-
-            if (goodFirstIssues.length > 0) {
-                const generalChannel = guild.channels.cache.find(
-                    ch => ch.name === GENERAL_CHANNEL_NAME && ch.isTextBased()
-                );
-                if (generalChannel) {
-                    const gfiList = goodFirstIssues.map(issue => 
-                        `• [${issue.title}](${issue.html_url}) by [${issue.user.login}](${issue.user.html_url})`
-                    ).join('\n');
-
-                    const gfiEmbed = new EmbedBuilder()
-                        .setTitle(`🟢 Good First Issues in ${repo}`)
-                        .setDescription(gfiList.slice(0, 4000))
-                        .setColor(0x2ECC71)
-                        .setTimestamp(new Date());
-
-                    await generalChannel.send({ embeds: [gfiEmbed] });
-                }
-            }
-        }
-
-        // === Update DB state ===
-        await postedM.updateOne(
-            { repo },
-            { $set: { prs: prs.map(p => p.html_url), issues: issues.map(i => i.html_url) } },
-            { upsert: true }
-        );
-    }
-
-    console.log("✅ Weekly batch posting complete.");
-}
 
 // ---------------------- POST PRs & ISSUES ----------------------
 async function postNewPRsAndIssues() {
@@ -260,24 +170,26 @@ async function postNewPRsAndIssues() {
 
         // --- New PRs ---
         const newPRs = prs.filter(pr => !dbData.prs.includes(pr.html_url));
-        for (const pr of newPRs.slice(0, 5)) {
-            const embed = new EmbedBuilder()
-                .setAuthor({ name: pr.user.login, iconURL: pr.user.avatar_url, url: pr.user.html_url })
-                .setTitle(`🔹 ${pr.title}`)
-                .setURL(pr.html_url)
-                .setDescription(
-                    `**Repository:** ${repo}\n` +
-                    `**Status:** ${pr.draft ? "🚧 Draft" : pr.state === "open" ? "🟢 Open" : "✅ Closed"}\n\n` +
-                    `${pr.body ? pr.body.slice(0, 300) + (pr.body.length > 300 ? "..." : "") : "No description"}`
-                )
-                .setColor(0x3498DB)
-                .setFooter({ text: `PR #${pr.number} | Created at` })
-                .setTimestamp(new Date(pr.created_at));
+for (const pr of newPRs.slice(0, 5)) {
+    const labels = pr.labels?.length
+        ? pr.labels.map(label => `\`${label.name}\``).join(", ")
+        : "None";
 
-            await repoChannel.send({ embeds: [embed] });
+   const embed = new EmbedBuilder()
+  .setAuthor({ name: pr.user.login, iconURL: pr.user.avatar_url, url: pr.user.html_url })
+  .setTitle(`📝 PR: ${pr.title}`)
+  .setURL(pr.html_url)
+  .addFields(
+    { name: "Repository", value: repo, inline: true },
+    { name: "Labels", value: labels, inline: true }
+  )
+  .setColor(0x3498DB)
+  .setFooter({ text: `PR #${pr.number} | Created at` })
+  .setTimestamp(new Date(pr.created_at));
 
-            
-        }
+    await repoChannel.send({ embeds: [embed] });
+}
+
 
         // --- New Issues ---
         const newIssues = issues.filter(issue => !dbData.issues.includes(issue.html_url));
@@ -285,19 +197,17 @@ async function postNewPRsAndIssues() {
             const labels = issue.labels?.length
                 ? issue.labels.map(label => `\`${label.name}\``).join(", ")
                 : "None";
-
-            const detailedEmbed = new EmbedBuilder()
-                .setAuthor({ name: issue.user.login, iconURL: issue.user.avatar_url, url: issue.user.html_url })
-                .setTitle(`📝 Issue: ${issue.title}`)
-                .setURL(issue.html_url)
-                .setDescription(
-                    `**Repository:** ${repo}\n` +
-                    `**Labels:** ${labels}\n\n` +
-                    `**Description:**\n${issue.body || "No description provided."}`
-                )
-                .setColor(0xE67E22)
-                .setFooter({ text: `Issue #${issue.number} | Created at` })
-                .setTimestamp(new Date(issue.created_at));
+const detailedEmbed = new EmbedBuilder()
+  .setAuthor({ name: issue.user.login, iconURL: issue.user.avatar_url, url: issue.user.html_url })
+  .setTitle(`📝 Issue: ${issue.title}`)
+  .setURL(issue.html_url)
+  .addFields(
+    { name: "Repository", value: repo, inline: true },
+    { name: "Labels", value: labels, inline: true }
+  )
+  .setColor(0xE67E22)
+  .setFooter({ text: `Issue #${issue.number} | Created at` })
+  .setTimestamp(new Date(issue.created_at));
 
             await repoChannel.send({ embeds: [detailedEmbed] });
 
