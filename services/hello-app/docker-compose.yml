@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  hello-app:
+    build: .
+    container_name: hello-app
+    restart: unless-stopped
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=openlake-edge"
+      - "traefik.http.routers.hello.rule=Host(`hello.localhost`)"
+      - "traefik.http.routers.hello.entrypoints=websecure"
+      - "traefik.http.routers.hello.tls=true"
+      - "traefik.http.services.hello.loadbalancer.server.port=8000"
+
+    networks:
+      - edge
+      - backend
+
+networks:
+  edge:
+    external: true
+    name: openlake-edge
+  backend:
+    external: true
+    name: openlake-backend

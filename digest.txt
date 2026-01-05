@@ -1,0 +1,1604 @@
+Directory structure:
+└── Infra/
+    ├── README.md
+    ├── CONTRIBUTING.md
+    ├── dependabot.yml
+    ├── docker-compose.base.yml
+    ├── docker-compose.dummy.yml
+    ├── instructions.md
+    ├── ISSUE_TEMPLATE.md
+    ├── MAINTAINERS.md
+    ├── pull_request_template.md
+    ├── bots/
+    │   └── discord/
+    │       ├── README.md
+    │       ├── botData.json
+    │       ├── delete.js
+    │       ├── deploy-commands.js
+    │       ├── index.html
+    │       ├── index.js
+    │       ├── package.json
+    │       ├── commands/
+    │       │   └── register-commands.js
+    │       ├── database/
+    │       │   └── repoChannels.json
+    │       └── .github/
+    │           ├── workflow/
+    │           │   └── discord-bot.yml
+    │           └── workflows/
+    │               └── main.yml
+    ├── docs/
+    │   └── README.md
+    ├── ops/
+    │   └── traefik/
+    │       └── labels.md
+    └── services/
+        ├── hello-app/
+        │   ├── app.py
+        │   ├── docker-compose.yml
+        │   └── Dockerfile
+        └── postgres/
+            └── docker-compose.yml
+
+================================================
+FILE: README.md
+================================================
+
+<h1 align="center">OpenLake Infrastructure</h1>
+
+<p align="center">
+A unified repository containing all automation tools, scripts, configurations, and bots that keep OpenLake’s operations running smoothly.
+</p>
+
+<p align="center">
+    <img src="https://img.shields.io/badge/Status-Deployed-brightgreen" alt="Status: Deployed" />
+    <img src="https://img.shields.io/badge/Development-Ongoing-blue" alt="Development: Ongoing" />
+    <img src="https://img.shields.io/badge/License-MIT-yellow" alt="License: MIT" />
+</p>
+
+<p align="center">
+    <img src="https://img.shields.io/github/issues-pr-closed/OpenLake/openlake-infra?color=success" alt="Pull Requests Merged" />
+    <img src="https://img.shields.io/github/issues/OpenLake/openlake-infra?color=orange" alt="Open Issues" />
+    <img src="https://img.shields.io/github/contributors/OpenLake/openlake-infra" alt="Contributors" />
+</p>
+
+---
+
+## Repository Links <sup>[↥ Back to top](#table-of-contents)</sup>
+- **Main Repository:** [OpenLake](https://github.com/OpenLake)
+- **This Project Repository:** [openlake-infra](https://github.com/OpenLake/openlake-infra)
+
+---
+
+## Table of Contents
+1. [About the Project](#about-the-project)
+2. [Getting Started](#getting-started)
+3. [Usage](#usage)
+4. [Contributing](#contributing)
+5. [Maintainers](#maintainers)
+6. [License](#license)
+
+---
+
+## About the Project <sup>[↥ Back to top](#table-of-contents)</sup>
+
+The **OpenLake Infrastructure** repository is the backbone of OpenLake’s internal systems.  
+It consolidates all the tools, scripts, bots, and configurations that streamline operations across OpenLake’s projects and servers.
+
+### 🧩 Key Goals
+- Automate repetitive DevOps and community management tasks.
+- Manage and monitor OpenLake’s servers, bots, and GitHub automations.
+- Provide a transparent and organized place for infrastructure-related contributions.
+
+### 👥 Target Audience
+- **OpenLake developers** who maintain our servers, repositories, and bots.
+- **Contributors** looking to add automation or improve operational efficiency.
+
+### 🌊 Part of the OpenLake Ecosystem
+This project supports other OpenLake projects by maintaining their infrastructure — ensuring smooth CI/CD pipelines, community automation, and reliable server uptime.
+
+---
+
+## Getting Started <sup>[↥ Back to top](#table-of-contents)</sup>
+
+### Prerequisites
+Install dependencies based on the module you want to run.
+
+```bash
+# For Node.js scripts
+npm install
+
+# For Python scripts
+pip install -r requirements.txt
+````
+
+### Installation
+
+1. Clone the repository:
+
+<<<<<<< HEAD
+```bash
+git clone https://github.com/openlake-org/openlake-helper-bot.git
+cd openlake-helper-bot
+```
+
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Create a `.env` file in the root directory and add the following environment variables:
+
+```
+DISCORD_TOKEN=your_discord_bot_token
+GITHUB_TOKEN=your_github_personal_access_token
+GITHUB_ORG=openlake-org
+```
+
+4. Configure the bot settings in `config.json` or relevant config files (if applicable).
+
+### Running the Bot
+
+```bash
+npm start
+```
+
+---
+
+## Usage
+
+Once the bot is online and invited to your Discord server:
+
+* It will automatically fetch and update issue and PR counts for configured repositories.
+* Notifications will be sent to designated channels on specific GitHub events.
+* Use bot commands (if any) to get on-demand reports or updates.
+  *(Example commands can be added based on implementation)*
+
+---
+
+## How It Works
+
+* The bot uses the GitHub REST API to fetch data about issues and pull requests from Openlake repositories.
+* It listens for events or periodically polls the API to keep data updated.
+* Using the Discord.js library, it posts messages, updates, and notifications to specified channels.
+* The bot can be extended to add more functionality as Openlake’s needs grow.
+
+---
+
+## Contribution
+
+Contributions from the community and organization members are welcome! Please follow the standard [GitHub workflow](https://docs.github.com/en/get-started/quickstart/contributing-to-projects) for issues and pull requests.
+
+---
+
+## License
+
+[MIT License](LICENSE)
+
+---
+
+## Contact
+
+For questions or support, please reach out to the Openlake maintainers or open an issue in this repository.
+
+=======
+   ```bash
+   git clone https://github.com/OpenLake/openlake-infra.git
+   cd openlake-infra
+   ```
+
+2. Copy and configure environment variables:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+3. Refer to the `/docs` folder for detailed setup instructions for each module (bots, servers, actions, etc.).
+
+---
+
+## Usage <sup>[↥ Back to top](#table-of-contents)</sup>
+
+Each component is modular and self-contained.
+
+### Example: Run a Discord Bot
+
+```bash
+cd bots/discord
+npm start
+```
+
+### Example: Execute a GitHub Action Script Locally
+
+```bash
+act -j cleanup-old-branches
+```
+
+### Example: Deploy VPS Configuration
+
+```bash
+bash server/vps-configs/deploy.sh
+```
+
+More examples and configurations are available in their respective folders.
+
+---
+
+## Contributing <sup>[↥ Back to top](#table-of-contents)</sup>
+
+We welcome contributions from OpenLake members and the community!
+If you’ve created a bot, automation, or useful script that enhances OpenLake operations — feel free to open a PR.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed contribution guidelines.
+
+---
+
+## Maintainers <sup>[↥ Back to top](#table-of-contents)</sup>
+
+Current Maintainers: [@OpenLake-Core](https://github.com/OpenLake)
+See [MAINTAINERS.md](MAINTAINERS.md) for the full list.
+
+---
+
+## License <sup>[↥ Back to top](#table-of-contents)</sup>
+
+Distributed under the **MIT License**.
+See [LICENSE](LICENSE) for more details.
+>>>>>>> 80fe8654bfe71cf4c1edc6fd51c3183587bc4b01
+
+
+
+================================================
+FILE: CONTRIBUTING.md
+================================================
+ 
+# Contributing to OpenLake Project
+
+We welcome contributions of all kinds — code, documentation, testing, design, and ideas.  
+Please read this guide before contributing to ensure smooth collaboration.
+
+---
+
+## 1. Code of Conduct
+All contributors are expected to follow our [Code of Conduct](CODE_OF_CONDUCT.md) to maintain a welcoming environment.
+
+---
+
+## 2. How to Contribute
+
+### Reporting Bugs
+- Search existing [issues](../../issues) to avoid duplicates.
+- Use the **Bug Report** issue template.
+- Include:
+  - Clear title and description
+  - Steps to reproduce
+  - Expected vs actual behavior
+  - Screenshots/logs if applicable
+
+### Suggesting Features
+- Use the **Feature Request** issue template.
+- Provide:
+  - The problem your feature solves
+  - Proposed solution or design
+  - Alternatives considered
+
+### Improving Documentation
+- Check for outdated or unclear sections.
+- Submit a PR with your changes, tagging it with the `documentation` label.
+
+---
+
+## 3. Development Workflow
+
+1. **Fork** the repository.
+2. **Clone** your fork:
+   ```bash
+   git clone https://github.com/<your-username>/your-project.git
+    ```
+
+3. **Create a branch** for your work:
+
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+4. **Commit** changes using clear messages:
+
+   ```bash
+   git commit -m "Add: brief description of change"
+   ```
+5. **Push** your branch:
+
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+6. **Open a Pull Request**:
+
+   * Link related issues.
+   * Follow the PR template.
+
+---
+
+## 4. Pull Request Guidelines
+
+* Keep PRs small and focused.
+* Include tests for new functionality.
+* Pass all CI checks before requesting a review.
+* Use clear commit messages.
+
+---
+
+## 5. Getting Help
+
+If you’re stuck:
+
+* Check the README and existing issues.
+* Ask questions in the OpenLake Slack channel.
+* Tag a maintainer in your issue or PR.
+
+---
+
+Thank you for contributing to OpenLake!
+Every contribution — big or small — helps the project grow.
+
+ 
+
+
+================================================
+FILE: dependabot.yml
+================================================
+# Dependabot Configuration File
+# Save this as `.github/dependabot.yml` in your repository root.
+
+# Instructions to enable Dependabot:
+# 1. Create this file at `.github/dependabot.yml` in your repo.
+# 2. Dependabot will automatically start checking dependencies according to this config.
+# 3. Make sure GitHub Actions or Dependabot is enabled in your repository settings.
+
+version: 2
+
+updates:
+  # Add update configurations here for each package ecosystem and template path.
+
+  # Example: JavaScript (npm)
+  - package-ecosystem: "npm"          # The package manager you want Dependabot to update
+    directory: "/templates/js-template"  # Path to the directory containing package.json
+    schedule:
+      interval: "weekly"              # Options: "daily", "weekly", or "monthly"
+    open-pull-requests-limit: 5      # Limit on concurrent open PRs
+
+  # Example: Python (pip)
+  - package-ecosystem: "pip"
+    directory: "/templates/python-template"  # Path to directory with requirements.txt or Pipfile
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+
+  # Example: Docker images
+  - package-ecosystem: "docker"
+    directory: "/templates/docker-template"  # Directory with Dockerfile
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+
+# How to add new ecosystems:
+# - Copy one of the existing blocks above.
+# - Update 'package-ecosystem' to the desired package manager (e.g., "maven", "gradle", "github-actions").
+# - Update 'directory' to the folder containing dependency files for that ecosystem.
+# - Adjust 'schedule.interval' as needed.
+#
+# Refer to GitHub Dependabot documentation for supported ecosystems:
+# https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file#package-ecosystem
+
+
+
+================================================
+FILE: docker-compose.base.yml
+================================================
+services:
+  traefik:
+    image: traefik:v3.0
+    container_name: traefik
+    restart: unless-stopped
+
+    command:
+      - "--api.dashboard=true"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+    networks:
+      - edge
+
+  whoami:
+    image: traefik/whoami
+    container_name: whoami
+    restart: unless-stopped
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami.rule=Host(`whoami.localhost`)"
+      - "traefik.http.routers.whoami.entrypoints=web"
+
+    networks:
+      - edge
+
+networks:
+  edge:
+    name: openlake-edge
+
+
+
+
+================================================
+FILE: docker-compose.dummy.yml
+================================================
+[Empty file]
+
+
+================================================
+FILE: instructions.md
+================================================
+ # Repository Templates Instructions
+
+This repository contains standardized templates for GitHub/GitLab workflows. Use these files to maintain consistency across projects.
+
+## Available Templates
+
+| File                 | Purpose                                                                 |
+|----------------------|-------------------------------------------------------------------------|
+| `PULL_REQUEST.md`    | Template for pull request descriptions (auto-fills new PRs)             |
+| `ISSUE_TEMPLATE.md`  | Template for bug reports/feature requests                               |
+| `CONTRIBUTING.md`    | Guidelines for contributors (code style, setup, etc.)                   |
+| `MAINTAINERS.md`     | List of project maintainers and review process                          |
+| `dependabot.yml`     | Configuration for automated dependency updates                          |
+
+## How to Use
+
+1. **For New Repositories**:  
+   Copy these files to:
+   - GitHub: `.github/` directory  
+   - GitLab: `.gitlab/` directory  
+
+2. **Customization**:  
+   Edit templates to match your project’s needs (e.g., update labels in `PULL_REQUEST.md`).
+
+3. **Automation**:  
+   - GitHub: Files in `.github/` work automatically.  
+   - GitLab: Merge request templates need `.gitlab/merge_request_templates/`.  
+
+## Updating Templates
+- Submit changes via PR (use the `PULL_REQUEST.md` template).  
+- Tag maintainers (`MAINTAINERS.md`) for review.  
+
+## Need Help?
+Open an issue using the `ISSUE_TEMPLATE.md` format!
+
+
+================================================
+FILE: ISSUE_TEMPLATE.md
+================================================
+# Issue Report
+
+> **Select Type:**  
+> - [ ] Bug – Something is broken  
+> - [ ] Feature – New functionality request  
+> - [ ] Support – Question or help needed  
+
+---
+
+## Summary
+<!-- Short description of the issue -->
+
+---
+
+## Details
+**Current Behavior:**  
+<!-- What’s happening now -->
+
+**Expected Behavior:**  
+<!-- What should happen -->
+
+---
+
+## Steps to Reproduce (for bugs)
+1.  
+2.  
+3.  
+
+**Minimal Demo (optional):** [Link](https://google.com)  
+
+---
+
+## Motivation / Use Case (for features)
+<!-- Why this change is needed -->
+
+---
+
+## Environment
+- Version:  
+- Browser:  
+- Language:  
+
+---
+
+## Additional Info
+<!-- Context, logs, screenshots -->
+**Do you want to work on this issue?**  
+- [ ] Yes  
+- [ ] No  
+
+
+
+================================================
+FILE: MAINTAINERS.md
+================================================
+# Maintainers
+
+_This file is auto-generated from the repository collaborators list._
+
+| Name          | GitHub Handle    | Role             | Tenure | 
+|---------------|------------------|------------------|---|
+| Harshit      | [@HarK-github](https://github.com/HarK-github) | Mentor - Discord Bot Developer | 2025-26 | 
+
+
+
+================================================
+FILE: pull_request_template.md
+================================================
+## Description  
+<!-- Briefly explain what this PR does and why it's needed. -->  
+
+## Related Issue(s)  
+- Fixes #  
+- Related to #  
+
+## Changes  
+<!-- Bullet-point summary of key changes. -->  
+-  
+-  
+-  
+
+## Type of Change  
+- [ ] Bug fix  
+- [ ] Feature  
+- [ ] Breaking change  
+- [ ] Docs  
+- [ ] Refactor  
+
+## Checklist  
+- [ ] Code follows project style  
+- [ ] Tested locally  
+- [ ] Docs updated (if needed)  
+- [ ] No new warnings  
+
+## Notes  
+<!-- Extra context for reviewers. -->  
+
+
+================================================
+FILE: bots/discord/README.md
+================================================
+ 
+
+# Openlake Helper Bot
+
+A Discord bot built with [discord.js](https://discord.js.org/) to assist the Openlake organization by tracking GitHub issues, pull requests, and providing timely notifications and updates directly within Discord channels.
+
+---
+
+## Overview
+
+Openlake Helper Bot serves as an organizational assistant for the Openlake community. It monitors GitHub repositories to count and track issues and pull requests, providing real-time notifications and summaries to keep contributors and maintainers informed.
+
+This bot improves collaboration and transparency by ensuring everyone stays updated about ongoing development activities without leaving Discord.
+
+---
+
+## Features
+
+* **Issue Tracking:** Automatically count and report the number of open, closed, and total issues in Openlake repositories.
+* **Pull Request Monitoring:** Track pull request statuses and notify channels about new, merged, or closed PRs.
+* **Custom Notifications:** Send configurable alerts for important events, such as issue creation or PR review requests.
+* **Summary Reports:** Generate periodic summaries of repository activities.
+* **Easy Configuration:** Designed to be flexible and adaptable to Openlake’s workflow needs.
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+* Node.js (v16 or above)
+* A Discord bot token (from the Discord Developer Portal)
+* GitHub personal access token (for API access to track issues and PRs)
+* Access permissions to Openlake repositories (read access)
+
+### Installation
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/openlake-org/openlake-helper-bot.git
+cd openlake-helper-bot
+```
+
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Create a `.env` file in the root directory and add the following environment variables:
+
+```
+DISCORD_TOKEN=your_discord_bot_token
+GITHUB_TOKEN=your_github_personal_access_token
+GITHUB_ORG=openlake-org
+```
+
+4. Configure the bot settings in `config.json` or relevant config files (if applicable).
+
+### Running the Bot
+
+```bash
+npm start
+```
+
+---
+
+## Usage
+
+Once the bot is online and invited to your Discord server:
+
+* It will automatically fetch and update issue and PR counts for configured repositories.
+* Notifications will be sent to designated channels on specific GitHub events.
+* Use bot commands (if any) to get on-demand reports or updates.
+  *(Example commands can be added based on implementation)*
+
+---
+
+## How It Works
+
+* The bot uses the GitHub REST API to fetch data about issues and pull requests from Openlake repositories.
+* It listens for events or periodically polls the API to keep data updated.
+* Using the Discord.js library, it posts messages, updates, and notifications to specified channels.
+* The bot can be extended to add more functionality as Openlake’s needs grow.
+
+---
+
+## Contribution
+
+Contributions from the community and organization members are welcome! Please follow the standard [GitHub workflow](https://docs.github.com/en/get-started/quickstart/contributing-to-projects) for issues and pull requests.
+
+---
+
+## License
+
+[MIT License](LICENSE)
+
+---
+
+## Contact
+
+For questions or support, please reach out to the Openlake maintainers or open an issue in this repository.
+
+
+
+
+================================================
+FILE: bots/discord/botData.json
+================================================
+{
+  "postedPRs": [
+     
+  ],
+  "postedIssues": [
+     
+  ],
+  "points": {}
+}
+
+
+================================================
+FILE: bots/discord/delete.js
+================================================
+require('dotenv').config();
+const { Client, IntentsBitField } = require('discord.js');
+
+const client = new Client({
+    intents: [
+        IntentsBitField.Flags.Guilds,
+        IntentsBitField.Flags.GuildMessages,
+        IntentsBitField.Flags.MessageContent
+    ]
+});
+async function deleteAllBotMessages(guild) {
+    for (const [channelId, channel] of guild.channels.cache) {
+        if (!channel.isTextBased()) continue;
+
+        console.log(`🧹 Cleaning #${channel.name}...`);
+
+        let hasMore = true;
+
+        while (hasMore) {
+            try {
+                // Fetch up to 100 messages
+                const fetched = await channel.messages.fetch({ limit: 100 });
+                const botMessages = fetched.filter(m => m.author.id === client.user.id);
+
+                for (const msg of botMessages.values()) {
+                    const preview = msg.content.split(" ").slice(0, 4).join(" ");
+                    console.log(`🗑 Deleting message by ${msg.author.username}: "${preview}..."`);
+
+                    try {
+                        await msg.delete();
+                        await new Promise(r => setTimeout(r, 250)); // small delay
+                    } catch (err) {
+                        console.log(`⚠️ Could not delete a message in #${channel.name}: ${err.message}`);
+                    }
+                }
+
+                hasMore = botMessages.size > 0;
+            } catch (err) {
+                console.log(`⚠️ Failed to fetch messages in #${channel.name}: ${err.message}`);
+                hasMore = false;
+            }
+        }
+    }
+}
+
+client.on('ready', async () => {
+    console.log(`✅ Logged in as ${client.user.tag}`);
+    
+    // Loop through all guilds
+    for (const [guildId, guild] of client.guilds.cache) {
+        console.log(`🔍 Cleaning messages in guild: ${guild.name}`);
+        await deleteAllBotMessages(guild);
+    }
+
+    console.log("✅ Finished deleting all bot messages. Exiting...");
+    process.exit(0); // Exit bot after cleanup
+});
+
+client.login(process.env.TOKEN);
+
+
+
+================================================
+FILE: bots/discord/deploy-commands.js
+================================================
+const { REST, Routes } = require('discord.js');
+const { clientId, guildId, token } = require('./config.json');
+const fs = require('node:fs');
+const path = require('node:path');
+
+const commands = [];
+// Grab all the command folders from the commands directory you created earlier
+const foldersPath = path.join(__dirname, 'commands');
+const commandFolders = fs.readdirSync(foldersPath);
+
+for (const folder of commandFolders) {
+	// Grab all the command files from the commands directory you created earlier
+	const commandsPath = path.join(foldersPath, folder);
+	const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+	// Grab the SlashCommandBuilder#toJSON() output of each command's data for deployment
+	for (const file of commandFiles) {
+		const filePath = path.join(commandsPath, file);
+		const command = require(filePath);
+		if ('data' in command && 'execute' in command) {
+			commands.push(command.data.toJSON());
+		} else {
+			console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
+		}
+	}
+}
+
+// Construct and prepare an instance of the REST module
+const rest = new REST().setToken(token);
+
+// and deploy your commands!
+(async () => {
+	try {
+		console.log(`Started refreshing ${commands.length} application (/) commands.`);
+
+		// The put method is used to fully refresh all commands in the guild with the current set
+		const data = await rest.put(
+			Routes.applicationGuildCommands(clientId, guildId),
+			{ body: commands },
+		);
+
+		console.log(`Successfully reloaded ${data.length} application (/) commands.`);
+	} catch (error) {
+		// And of course, make sure you catch and log any errors!
+		console.error(error);
+	}
+})();
+
+
+
+================================================
+FILE: bots/discord/index.html
+================================================
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Mini Floating Browser</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 20px; }
+  #miniWindow { 
+    position: fixed; 
+    bottom: 10px; 
+    right: 10px; 
+    width: 300px; 
+    height: 200px; 
+    border: 2px solid #000; 
+    border-radius: 8px; 
+    box-shadow: 0 0 10px rgba(0,0,0,0.5); 
+    z-index: 9999; 
+    background: #fff; 
+  }
+  #miniHeader { 
+    background: #333; 
+    color: #fff; 
+    padding: 4px; 
+    cursor: move; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+  }
+  #miniHeader button { 
+    background: #555; 
+    color: #fff; 
+    border: none; 
+    border-radius: 3px; 
+    cursor: pointer; 
+  }
+  #urlInput { width: 70%; padding: 2px; }
+  #iframeContainer { width: 100%; height: calc(100% - 30px); }
+  #iframeContainer iframe { width: 100%; height: 100%; border: none; }
+</style>
+</head>
+<body>
+
+<h3>Mini Floating Browser</h3>
+<input type="text" id="urlInput" placeholder="Enter URL (https://example.com)">
+<button id="openBtn">Open</button>
+
+<div id="miniWindow" style="display:none;">
+  <div id="miniHeader">
+    <span>Mini Browser</span>
+    <div>
+      <button id="minBtn">_</button>
+      <button id="closeBtn">X</button>
+    </div>
+  </div>
+  <div id="iframeContainer"></div>
+</div>
+
+<script>
+  const miniWindow = document.getElementById('miniWindow');
+  const iframeContainer = document.getElementById('iframeContainer');
+  const openBtn = document.getElementById('openBtn');
+  const urlInput = document.getElementById('urlInput');
+  const closeBtn = document.getElementById('closeBtn');
+  const minBtn = document.getElementById('minBtn');
+  let isMinimized = false;
+
+  openBtn.onclick = () => {
+    const url = urlInput.value.trim();
+    if (!url) return alert('Enter a URL!');
+    iframeContainer.innerHTML = `<iframe src="${url}?igu=1"></iframe>`;
+    miniWindow.style.display = 'block';
+    if (isMinimized) toggleMinimize();
+  };
+
+  closeBtn.onclick = () => miniWindow.style.display = 'none';
+  minBtn.onclick = toggleMinimize;
+
+  function toggleMinimize() {
+    isMinimized = !isMinimized;
+    iframeContainer.style.display = isMinimized ? 'none' : 'block';
+    miniWindow.style.height = isMinimized ? '30px' : '200px';
+  }
+
+  // Dragging
+  const header = document.getElementById('miniHeader');
+  header.onmousedown = function(e) {
+    const offsetX = e.clientX - miniWindow.getBoundingClientRect().left;
+    const offsetY = e.clientY - miniWindow.getBoundingClientRect().top;
+
+    function moveHandler(e) {
+      miniWindow.style.left = e.clientX - offsetX + 'px';
+      miniWindow.style.top = e.clientY - offsetY + 'px';
+    }
+    function upHandler() {
+      document.removeEventListener('mousemove', moveHandler);
+      document.removeEventListener('mouseup', upHandler);
+    }
+    document.addEventListener('mousemove', moveHandler);
+    document.addEventListener('mouseup', upHandler);
+  };
+</script>
+
+</body>
+</html>
+
+
+
+================================================
+FILE: bots/discord/index.js
+================================================
+<<<<<<< HEAD
+ require('dotenv').config();
+=======
+// require('dotenv').config();
+>>>>>>> 0b8a326e68f75c645f22b90875ff5a5f0b6b8e0b
+const { Client, IntentsBitField, EmbedBuilder } = require('discord.js');
+const fetch = require('node-fetch');
+const { MongoClient } = require('mongodb');
+const express = require("express");
+console.log("ACCESS_URL starts with:", process.env.ACCESS_URL?.slice(0, 10));
+
+
+const app = express();
+
+app.get("/", (req, res) => {
+  res.send("Bot is running!");
+});
+
+app.get("/health", (req, res) => {
+  res.status(200).send("OK");
+});
+
+app.listen(process.env.PORT || 3000, () => {
+  console.log(`🌐 Web service running on port ${process.env.PORT || 3000}`);
+});
+
+// ---------------------- DISCORD CLIENT ----------------------
+const client = new Client({
+    intents: [
+        IntentsBitField.Flags.Guilds,
+        IntentsBitField.Flags.GuildMembers,
+        IntentsBitField.Flags.GuildMessages,
+        IntentsBitField.Flags.MessageContent
+    ]
+});
+
+// ---------------------- DATABASE ----------------------
+const mongoClient = new MongoClient(process.env.ACCESS_URL);
+let postedM, userPoints;
+
+async function initDB() {
+    await mongoClient.connect();
+    const db = mongoClient.db("discordBot"); // db name can be anything you like
+    postedM = db.collection("postedM");
+    userPoints = db.collection("user_points");
+    console.log("✅ MongoDB connected");
+}
+
+// ---------------------- VARIABLES ----------------------
+const repoConfig = require('./database/repoChannels.json');
+const REPO_CHANNELS = repoConfig.repos;
+const GENERAL_CHANNEL_NAME = repoConfig.generalChannel;
+
+const FETCH_INTERVAL = 1000 * 60 * 4;
+
+// ---------------------- FETCH PRs & ISSUES ----------------------
+async function fetchPRsAndIssues(repo) {
+    const headers = { 'Accept': 'application/vnd.github.v3+json' };
+    if (process.env.GITHUB_TOKEN) {
+        headers['Authorization'] = `token ${process.env.GITHUB_TOKEN}`;
+    }
+
+    const prUrl = `https://api.github.com/repos/${repo}/pulls`;
+    const issuesUrl = `https://api.github.com/repos/${repo}/issues`;
+
+    try {
+        const [prsResponse, issuesResponse] = await Promise.all([
+            fetch(prUrl, { headers }),
+            fetch(issuesUrl, { headers })
+        ]);
+
+        const prs = await prsResponse.json();
+        const issues = await issuesResponse.json();
+
+        return {
+            prs: Array.isArray(prs) ? prs : [],
+            issues: Array.isArray(issues) ? issues : []
+        };
+    } catch (error) {
+    //    console.error(`❌ Error fetching PRs & issues for ${repo}:`, error);
+        return { prs: [], issues: [] };
+    }
+} 
+// ---------------------- SIMPLE LEVEL SYSTEM ----------------------
+function pointsForLevel(level) {
+    return (level - 1) * level * 5;  
+    // Level 2 = 10, Level 3 = 30, Level 4 = 60, Level 5 = 100, ...
+}
+
+function getLevel(points) {
+    let level = 1;
+    while (points >= pointsForLevel(level + 1)) {
+        level++;
+    }
+    return level;
+}
+
+
+// ---------------------- MESSAGE-BASED POINTS ----------------------
+client.on('messageCreate', async (message) => {
+    if (message.author.bot) return;
+
+    const userId = message.author.id;  // stable unique ID
+    const username = message.author.username;
+    const guild = message.guild;
+
+    try {
+        // Increment or insert
+        const result = await userPoints.findOneAndUpdate(
+    { userId },
+    {
+        $inc: { points: 1 },
+        $set: { user: username, userId } // update username if it changed
+    },
+    { upsert: true, returnDocument: "after" } // for MongoDB v4+
+    // If still not working, try: { upsert: true, returnOriginal: false }
+);
+
+    // Safely get updated points
+    const totalPoints = result?.value?.points || result?.points || 0;
+
+    const newLevel = getLevel(totalPoints);
+    const oldLevel = getLevel(totalPoints - 1);
+        // Level up check
+        if (newLevel > oldLevel) {
+        // Prefer channel ID (safer)
+            const generalChannel = guild.channels.cache.get(GENERAL_CHANNEL_NAME);
+
+            if (generalChannel && generalChannel.isTextBased()) {
+                await generalChannel.send(
+                    `🎉 <@${userId}> has reached **Level ${newLevel}** !`
+                );
+            } 
+            // else {
+               
+            //     // console.error("⚠️ General channel not found or not text-based");
+            // }
+        }
+
+
+        //console.log(`⭐ ${username} (${userId}) now has ${totalPoints} points (Level ${newLevel})`);
+    } catch (err) {
+        //console.error("❌ Error updating user points:", err);
+    }
+});
+async function postNewPRsAndIssues_batch() {
+    const guild = client.guilds.cache.first();
+    if (!guild) {
+        console.error("Bot is not in any guild!");
+        return;
+    }
+
+    for (const repo of Object.keys(REPO_CHANNELS)) {
+        const { prs, issues } = await fetchPRsAndIssues(repo);
+
+        const repoChannelName = REPO_CHANNELS[repo];
+        const repoChannel = guild.channels.cache.find(
+            ch => ch.name === repoChannelName && ch.isTextBased()
+        );
+
+        if (!repoChannel) {
+            console.log(`⚠️ Repo channel ${repoChannelName} not found, skipping.`);
+            continue;
+        }
+
+        // Get previously posted data
+        const dbData = await postedM.findOne({ repo }) || { prs: [], issues: [] };
+
+        // Identify new PRs and Issues
+        const newPRs = prs.filter(pr => !dbData.prs.includes(pr.html_url));
+        const newIssues = issues.filter(issue => !dbData.issues.includes(issue.html_url));
+
+        // === Batch Embed for PRs ===
+        if (newPRs.length > 0) {
+            const prList = newPRs.map(pr => 
+                `• [${pr.title}](${pr.html_url}) by [${pr.user.login}](${pr.user.html_url})`
+            ).join('\n');
+
+            const prEmbed = new EmbedBuilder()
+                .setTitle(`🔹 New Pull Requests for ${repo}`)
+                .setDescription(prList.slice(0, 4000) || "No new pull requests this week.")
+                .setColor(0x3498DB)
+                .setTimestamp(new Date());
+
+            await repoChannel.send({ embeds: [prEmbed] });
+        }
+
+        // === Batch Embed for Issues ===
+        if (newIssues.length > 0) {
+            const issueList = newIssues.map(issue => 
+                `• [${issue.title}](${issue.html_url}) by [${issue.user.login}](${issue.user.html_url})`
+            ).join('\n');
+
+            const issueEmbed = new EmbedBuilder()
+                .setTitle(`📝 New Issues for ${repo}`)
+                .setDescription(issueList.slice(0, 4000) || "No new issues this week.")
+                .setColor(0xE67E22)
+                .setTimestamp(new Date());
+
+            await repoChannel.send({ embeds: [issueEmbed] });
+
+            // Optional: Highlight “good first issues” in the general channel
+            const goodFirstIssues = newIssues.filter(issue =>
+                issue.labels?.some(label => label.name.toLowerCase() === "good first issue")
+            );
+
+            if (goodFirstIssues.length > 0) {
+                const generalChannel = guild.channels.cache.find(
+                    ch => ch.name === GENERAL_CHANNEL_NAME && ch.isTextBased()
+                );
+                if (generalChannel) {
+                    const gfiList = goodFirstIssues.map(issue => 
+                        `• [${issue.title}](${issue.html_url}) by [${issue.user.login}](${issue.user.html_url})`
+                    ).join('\n');
+
+                    const gfiEmbed = new EmbedBuilder()
+                        .setTitle(`🟢 Good First Issues in ${repo}`)
+                        .setDescription(gfiList.slice(0, 4000))
+                        .setColor(0x2ECC71)
+                        .setTimestamp(new Date());
+
+                    await generalChannel.send({ embeds: [gfiEmbed] });
+                }
+            }
+        }
+
+        // === Update DB state ===
+        await postedM.updateOne(
+            { repo },
+            { $set: { prs: prs.map(p => p.html_url), issues: issues.map(i => i.html_url) } },
+            { upsert: true }
+        );
+    }
+
+    console.log("✅ Weekly batch posting complete.");
+}
+
+// ---------------------- POST PRs & ISSUES ----------------------
+async function postNewPRsAndIssues() {
+    const guild = client.guilds.cache.first();
+    if (!guild) {
+        console.error("Bot is not in any guild!");
+        return;
+    }
+
+    let openPRs = [];
+    let openIssues = [];
+
+    for (const repo of Object.keys(REPO_CHANNELS)) {
+        const { prs, issues } = await fetchPRsAndIssues(repo);
+
+        openPRs.push(...prs.map(pr => pr.html_url));
+        openIssues.push(...issues.map(issue => issue.html_url));
+
+        const repoChannelName = REPO_CHANNELS[repo];
+        const repoChannel = guild.channels.cache.find(ch => ch.name === repoChannelName && ch.isTextBased());
+
+        if (!repoChannel) {
+        //    console.log(`⚠️ Repo channel ${repoChannelName} not found, skipping.`);
+            continue;
+        }
+
+        // Load DB data
+        const dbData = await postedM.findOne({ repo }) || { prs: [], issues: [] };
+
+        // --- New PRs ---
+        const newPRs = prs.filter(pr => !dbData.prs.includes(pr.html_url));
+for (const pr of newPRs.slice(0, 5)) {
+    const labels = pr.labels?.length
+        ? pr.labels.map(label => `\`${label.name}\``).join(", ")
+        : "None";
+
+   const embed = new EmbedBuilder()
+  .setAuthor({ name: pr.user.login, iconURL: pr.user.avatar_url, url: pr.user.html_url })
+  .setTitle(`📝 PR: ${pr.title}`)
+  .setURL(pr.html_url)
+  .addFields(
+    { name: "Repository", value: repo, inline: true },
+    { name: "Labels", value: labels, inline: true }
+  )
+  .setColor(0x3498DB)
+  .setFooter({ text: `PR #${pr.number} | Created at` })
+  .setTimestamp(new Date(pr.created_at));
+
+    await repoChannel.send({ embeds: [embed] });
+}
+
+
+        // --- New Issues ---
+        const newIssues = issues.filter(issue => !dbData.issues.includes(issue.html_url));
+        for (const issue of newIssues.slice(0, 5)) {
+            const labels = issue.labels?.length
+                ? issue.labels.map(label => `\`${label.name}\``).join(", ")
+                : "None";
+const detailedEmbed = new EmbedBuilder()
+  .setAuthor({ name: issue.user.login, iconURL: issue.user.avatar_url, url: issue.user.html_url })
+  .setTitle(`📝 Issue: ${issue.title}`)
+  .setURL(issue.html_url)
+  .addFields(
+    { name: "Repository", value: repo, inline: true },
+    { name: "Labels", value: labels, inline: true }
+  )
+  .setColor(0xE67E22)
+  .setFooter({ text: `Issue #${issue.number} | Created at` })
+  .setTimestamp(new Date(issue.created_at));
+
+            await repoChannel.send({ embeds: [detailedEmbed] });
+
+         
+            // Extra: Good first issues → post in general
+            if (issue.labels?.some(label => label.name.toLowerCase() === "good first issue")) {
+                const generalChannel = guild.channels.cache.find(ch => ch.name === GENERAL_CHANNEL_NAME && ch.isTextBased());
+                if (generalChannel) {
+                    const briefEmbed = new EmbedBuilder()
+                        .setTitle(`🟢 Good First Issue: ${issue.title}`)
+                        .setURL(issue.html_url)
+                        .setDescription(`**Repository:** ${repo}\n**Author:** ${issue.user.login}`)
+                        .setColor(0x2ECC71);
+
+                    await generalChannel.send({ embeds: [briefEmbed] });
+                }
+            }
+        }
+
+        // --- Update DB (replace old with new state) ---
+        await postedM.updateOne(
+            { repo },
+            { $set: { prs: openPRs, issues: openIssues } },
+            { upsert: true }
+        );
+    }
+}
+
+// ---------------------- BOT START ----------------------
+setInterval(() => {
+    postNewPRsAndIssues().catch(console.error);
+}, FETCH_INTERVAL);
+
+client.on('ready', async () => {
+    console.log(`✅ Logged in as ${client.user.tag}`);
+    await initDB();
+    postNewPRsAndIssues_batch();
+});
+
+client.login(process.env.TOKEN);
+
+
+
+================================================
+FILE: bots/discord/package.json
+================================================
+{
+  "name": "discord_bot_openlake",
+  "version": "1.0.0",
+  "description": "Bot for OpenLake Discord channel",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HarK-github/discord_bot_openlake.git"
+  },
+  "author": "Your Name",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/HarK-github/discord_bot_openlake/issues"
+  },
+  "homepage": "https://github.com/HarK-github/discord_bot_openlake#readme",
+  "dependencies": {
+    "discord.js": "^14.21.0",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "mongodb": "^6.19.0",
+    "node-fetch": "^2.7.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
+
+
+
+================================================
+FILE: bots/discord/commands/register-commands.js
+================================================
+const { SlashCommandBuilder } = require('discord.js');
+
+module.exports = {
+    data: new SlashCommandBuilder()
+        .setName('register')
+        .setDescription('Register yourself for the gamification system'),
+    async execute(interaction, points, saveData) {
+        const userId = interaction.user.id;
+        if (points[userId]) {
+            return interaction.reply({ content: 'You are already registered!', ephemeral: true });
+        }
+        points[userId] = 0;
+        saveData();
+        interaction.reply({ content: 'You have been registered successfully! 🎉', ephemeral: true });
+    }
+
+};
+
+
+
+================================================
+FILE: bots/discord/database/repoChannels.json
+================================================
+{
+  "generalChannel": "1412761247031758911",
+  "repos": {
+    "Openlake/career-scrapper": "career-scrapper",
+    "Openlake/auth-kit": "auth-kit",
+    "Openlake/iit-bhilai-rag": "iit-bhilai-rag",
+    "Openlake/infra": "infra",
+    "Openlake/ride-share": "ride-share",
+    "Openlake/Student_Database_COSA": "student_database_cosa",
+    "Openlake/leaderboard_pro": "leaderboard_pro",
+    "Openlake/Centre-for-Career-Planning-and-Services-Portal": "ccps-portal",
+    "Openlake/canonforces": "canonforces",
+    "Openlake/ksp": "ksp",
+    "Openlake/RateMyCourse": "rate_my_course",
+    "Openlake/Bhilaipedia": "bhilaipedia",
+    "Openlake/Campus-Marketplace": "campus-marketplace",
+    "Openlake/Smart-Insti-App": "smart_insti_app",
+    "Openlake/not-a-mess": "not-a-mess",
+    "Openlake/Sampoorna": "sampoorna",
+    "Openlake/OpenLake--Website": "openlake_website",
+    "Openlake/File-Sharing-App": "file_sharing_app",
+    "Openlake/Quiz-App": "quiz-app",
+    "Openlake/find-your-cluster": "find-your-cluster",
+    "Openlake/homework-scheduler": "homework-scheduler",
+    "Openlake/campus-navigation": "campus-navigation",
+    "Openlake/watch-party": "watch-party",
+    "Openlake/bit": "bit"
+  }
+}
+
+
+
+================================================
+FILE: bots/discord/.github/workflow/discord-bot.yml
+================================================
+name: discordbot
+
+on:
+  workflow_dispatch:   # manual trigger
+  push:                # also trigger on push
+    branches:
+      - main
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install --omit=dev
+
+      - name: Start bot
+        env:
+          TOKEN: ${{ secrets.TOKEN }}
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          GUILD_ID: ${{ secrets.GUILD_ID }}
+          GITHUB_TOKEN: ${{ secrets.GT_TOKEN }}
+          USER_NAME: ${{ secrets.USER_NAME }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+          ACCESS_URL: ${{ secrets.ACCESS_URL }}
+          PORT: 3000
+        run: node index.js
+
+
+
+
+================================================
+FILE: bots/discord/.github/workflows/main.yml
+================================================
+name: Discord Bot Cron
+
+on:
+  schedule:
+    - cron: "0 0 */6 * *"   # every 6 days
+  workflow_dispatch:
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install --omit=dev
+
+      - name: Start bot
+        env:
+          TOKEN: ${{ secrets.TOKEN }}
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          GUILD_ID: ${{ secrets.GUILD_ID }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          USER_NAME: ${{ secrets.USER_NAME }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+          ACCESS_URL: ${{ secrets.ACCESS_URL }}
+          PORT: 3000
+        run: |
+          echo "🚀 Starting Discord bot..."
+          node index.js
+
+
+
+================================================
+FILE: docs/README.md
+================================================
+[Empty file]
+
+
+================================================
+FILE: ops/traefik/labels.md
+================================================
+# Traefik Label Contract (MANDATORY)
+
+Every service exposed via Traefik MUST use this pattern.
+
+## Required labels
+
+- traefik.enable=true
+- traefik.http.routers.<service>.rule=Host(`<service>.<BASE_DOMAIN>`)
+- traefik.http.routers.<service>.entrypoints=websecure
+- traefik.http.routers.<service>.tls=true
+
+## Optional (common)
+
+- traefik.http.services.<service>.loadbalancer.server.port=<internal_port>
+
+## Middlewares
+
+- redirect-https (HTTP → HTTPS)
+- auth-basic (dashboards/internal tools)
+
+## Notes
+
+- No service may expose ports directly to host.
+- Traefik is the ONLY ingress.
+
+
+
+================================================
+FILE: services/hello-app/app.py
+================================================
+from fastapi import FastAPI
+import psycopg2
+import os
+
+app = FastAPI()
+
+@app.get("/health")
+def health():
+    conn = psycopg2.connect(
+        host="postgres",
+        dbname="openlake",
+        user="openlake",
+        password="openlake_dev"
+    )
+    conn.close()
+    return {"status": "ok"}
+
+
+
+================================================
+FILE: services/hello-app/docker-compose.yml
+================================================
+version: "3.9"
+
+services:
+  hello-app:
+    build: .
+    container_name: hello-app
+    restart: unless-stopped
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.hello.rule=Host(`hello.localhost`)"
+      - "traefik.http.routers.hello.entrypoints=websecure"
+      - "traefik.http.routers.hello.tls=true"
+      - "traefik.http.services.hello.loadbalancer.server.port=8000"
+
+    networks:
+      - edge
+      - backend
+
+networks:
+  edge:
+    external: true
+    name: openlake-edge
+  backend:
+    external: true
+    name: openlake-backend
+
+
+
+================================================
+FILE: services/hello-app/Dockerfile
+================================================
+FROM python:3.12-slim
+
+WORKDIR /app
+
+RUN pip install fastapi uvicorn psycopg2-binary
+
+COPY app.py .
+
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+
+
+
+================================================
+FILE: services/postgres/docker-compose.yml
+================================================
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: openlake
+      POSTGRES_PASSWORD: openlake_dev
+      POSTGRES_DB: openlake
+
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+    networks:
+      - backend
+
+volumes:
+  postgres-data:
+
+networks:
+  backend:
+    name: openlake-backend
+    external: true
+
+
